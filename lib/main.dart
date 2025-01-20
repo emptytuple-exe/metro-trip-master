@@ -1,40 +1,23 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:dropdown_search/dropdown_search.dart';
-=======
->>>>>>> 651a9e80e72e9ca95e36ae3af24c8f2fb3dc6ba1
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-<<<<<<< HEAD
   static const String _title = 'Trip Master';
-
-=======
-  static const String _title = 'Flutter Stateful Clicker Counter';
-  // This widget is the root of your application.
->>>>>>> 651a9e80e72e9ca95e36ae3af24c8f2fb3dc6ba1
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: _title,
       theme: ThemeData(
-<<<<<<< HEAD
         primarySwatch: Colors.blue,
       ),
-      home: const StationDistanceCalculator(),
-=======
-        // useMaterial3: false,
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
->>>>>>> 651a9e80e72e9ca95e36ae3af24c8f2fb3dc6ba1
+      home: const StationDistanceCalculator(), // Correct the duplicate home
     );
   }
 }
 
-<<<<<<< HEAD
 class Station {
   final String lineName;
   final int stationNumber;
@@ -56,14 +39,13 @@ class StationDistanceCalculator extends StatefulWidget {
 }
 
 class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
-  // Color map for line names
   final Map<String, Color> lineColors = {
     'Purple': Colors.purple,
     'Green': Color(0xff009c05),
   };
 
   final List<Station> _stations = [
-    Station('Purple', 1, 22, 'Whitefield (Kadugodi) (WHTM)'),
+    // ... Your l Station('Purple', 1, 22, 'Whitefield (Kadugodi) (WHTM)'),
     Station('Purple', 2, 21, 'Hopefarm Channasandra (UWVL)'),
     Station('Purple', 3, 20, 'Kadugodi Tree Park (KDGD)'),
     Station('Purple', 4, 19, 'Pattandur Agrahara (ITPL)'),
@@ -137,7 +119,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Green', 31, 14, 'Thalaghattapura (TGTP)'),
     Station('Green', 32, 15, 'Silk Institute (APTS)'),
 
-    // Add the rest of your stations here...
+    // Add the rest of your stations here...ist of stations
   ];
 
   Station _selectedStation1 = Station('Purple', 27, 4, 'Vijayanagar (VJN)');
@@ -151,7 +133,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
   @override
   void initState() {
     super.initState();
-    _updateResult(); // Call this method to initialize the results
+    _updateResult();
   }
 
   void _updateResult() {
@@ -159,19 +141,16 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
       int distance = 0;
       int travelTime = 0;
 
-      // Reset directions
       _directionA = '';
       _directionB = '';
       _waitingTime = '';
 
       if (_selectedStation1.lineName == _selectedStation2.lineName) {
-        // Same Line Travel
         distance =
             (_selectedStation1.stationNumber - _selectedStation2.stationNumber)
                 .abs();
         travelTime = distance * 2;
 
-        // Determine direction
         if (_selectedStation1.stationNumber < _selectedStation2.stationNumber) {
           _directionA = (_selectedStation1.lineName == 'Purple')
               ? 'Towards Challaghatta (Platform 2)'
@@ -182,14 +161,11 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
               : 'Towards Madavara (Platform 1)';
         }
 
-        // Waiting time
         _waitingTime = '^+ waiting time at ${_selectedStation1.stationName}';
       } else {
-        // Different Line Travel (Via Majestic)
         distance = _selectedStation1.fromKGWA + _selectedStation2.fromKGWA;
         travelTime = distance * 2;
 
-        // Directions for first part (to Majestic)
         if (_selectedStation1.lineName == 'Purple') {
           _directionA = (_selectedStation1.stationNumber < 23)
               ? 'Towards Challaghatta (Platform 2) till Majestic'
@@ -200,7 +176,6 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
               : 'Towards Madavara (Platform 1) till Majestic';
         }
 
-        // Directions for second part (from Majestic)
         if (_selectedStation2.lineName == 'Purple') {
           _directionB = (_selectedStation2.stationNumber > 23)
               ? 'Towards Challaghatta (Platform 2) from Majestic'
@@ -211,17 +186,14 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
               : 'Towards Madavara (Platform 3) from Majestic';
         }
 
-        // Waiting time
         _waitingTime =
             '^ + waiting time at ${_selectedStation1.stationName} and at Majestic';
       }
 
-      // Time formatting
       _time = travelTime > 60
           ? 'Time: ${(travelTime ~/ 60)}h ${(travelTime % 60)}m'
           : 'Time: $travelTime minutes^';
 
-      // Distance formatting
       _result = (distance > 1)
           ? 'Distance: $distance stations'
           : 'Distance: $distance station';
@@ -365,76 +337,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
           ),
         ),
       ),
-=======
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-  // This class is the configuration for the state.
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: const Text('Flutter Demo Click Counter'),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: const TextStyle(fontSize: 25),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
->>>>>>> 651a9e80e72e9ca95e36ae3af24c8f2fb3dc6ba1
     );
   }
 }
+

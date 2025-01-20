@@ -9,11 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-<<<<<<< HEAD
   dropdown_search: ^5.0.3
 
-=======
->>>>>>> 651a9e80e72e9ca95e36ae3af24c8f2fb3dc6ba1
 
 dev_dependencies:
   flutter_test:
