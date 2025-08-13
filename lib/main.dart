@@ -490,8 +490,14 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
         _printSideFare =
             'Smart cards/NCMC Fare: ₹${fare * 0.95} during peak hours (from ${_nextPeak})';
       } else {
-        _printMainFare =
-            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour}:${DateTime.now().minute} (till ${_nextNonPeak}): ₹${fare * 0.95}';
+        final now = DateTime.now();
+final formattedMinute = now.minute.toString().padLeft(2, '0');
+
+_printMainFare =
+  'QR Ticket/Token Fare: ₹${fare}\n'
+  'Smart card/NCMC Fare at ${now.hour}:$formattedMinute '
+  '(till $_nextNonPeak): ₹${fare * 0.95}';
+
         _printSideFare =
             'Smart cards/NCMC Fare: ₹${fare * 0.9} during non-peak hours (from ${_nextNonPeak})';
       }
