@@ -126,7 +126,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Purple', 5, 18, 25, 'Nallurhalli (VDHP)'),
     Station('Purple', 6, 17, 24, 'Satya Sai Hospital (SSHP)'),
     Station('Purple', 7, 16, 23, 'Kundalahalli (KDNH)'),
-    Station('Purple', 8, 15, 22, 'Seetharamapalya (VWIA)'),
+    Station('Purple', 8, 15, 22, 'Seetharama Palya (VWIA)'),
     Station('Purple', 9, 14, 21, 'Hoodi (DKIA)'),
     Station('Purple', 10, 13, 20, 'Garudacharapalya (GDCP)'),
     Station('Purple', 11, 12, 19, 'Singayyappanapalya (MDVP)'),
@@ -200,21 +200,21 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     // Yellow Line (distances stored as fromRVR in the fromKGWA field)
     Station('Yellow', 1, 7, 0,
         'Rashtreeya Vidyalaya Road (RVR)'), // RVR = 0 (anchor)
-    Station('Yellow', 2, 8, 1, 'Ragigudda (RGDT)'),
-    Station('Yellow', 3, 9, 2, 'Jayadeva Hospital (JDHP)'),
-    Station('Yellow', 4, 10, 3, 'BTM Layout (BMTL)'),
-    Station('Yellow', 5, 11, 4, 'Central Silk Board (SBJT)'),
-    Station('Yellow', 6, 12, 5, 'Bommanahalli (HSRL)'),
-    Station('Yellow', 7, 13, 6, 'Hongasandra (OFDC)'),
-    Station('Yellow', 8, 14, 7, 'Kudlu Gate (MSRN)'),
-    Station('Yellow', 9, 15, 8, 'Singasandra (CKBR)'),
-    Station('Yellow', 10, 16, 9, 'Hosa Road (BSRD)'),
-    Station('Yellow', 11, 17, 10, 'Beratena Agrahara (HOSR)'),
-    Station('Yellow', 12, 18, 11, 'Electronic City (ETCT)'),
-    Station('Yellow', 13, 19, 12, 'Infosys Foundation Konappana Agrahara (ECTN)'),
-    Station('Yellow', 14, 20, 13, 'Huskur Road (HSKR)'),
-    Station('Yellow', 15, 21, 14, 'Biocon HebbagodI (HBGI)'),
-    Station('Yellow', 16, 22, 15, 'Delta Electronics Bommasandra (BMSD)'),
+    Station('Yellow', 2, 8, 1, 'Ragigudda (RG'),
+    Station('Yellow', 3, 9, 2, 'Jayadeva Hospital'),
+    Station('Yellow', 4, 10, 3, 'BTM Layout'),
+    Station('Yellow', 5, 11, 4, 'Central Silk Board'),
+    Station('Yellow', 6, 12, 5, 'Bommanahalli'),
+    Station('Yellow', 7, 13, 6, 'Hongasandra'),
+    Station('Yellow', 8, 14, 7, 'Kudlu Gate'),
+    Station('Yellow', 9, 15, 8, 'Singasandra'),
+    Station('Yellow', 10, 16, 9, 'Hosa Road'),
+    Station('Yellow', 11, 17, 10, 'Beratena Agrahara'),
+    Station('Yellow', 12, 18, 11, 'Electronic City'),
+    Station('Yellow', 13, 19, 12, 'Infosys Foundation Konappana Agrahara'),
+    Station('Yellow', 14, 20, 13, 'Huskur Road'),
+    Station('Yellow', 15, 21, 14, 'Biocon Hebbagodi'),
+    Station('Yellow', 16, 22, 15, 'Delta Electronics Bommasandra'),
   ];
 
   Station _selectedStation1 = Station('Purple', 27, 4, 11, 'Vijayanagar (VJN)');
@@ -486,18 +486,12 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
       };
       if (nonPeak == 1) {
         _printMainFare =
-            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour}:${DateTime.now().minute} (till ${_nextPeak}): ₹${fare * 0.9}';
+            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour.toString().padLeft(2,'0')}:${DateTime.now().minute.toString().padLeft(2,'0')} (till ${_nextPeak}): ₹${fare * 0.9}';
         _printSideFare =
             'Smart cards/NCMC Fare: ₹${fare * 0.95} during peak hours (from ${_nextPeak})';
       } else {
-        final now = DateTime.now();
-final formattedMinute = now.minute.toString().padLeft(2, '0');
-
-_printMainFare =
-  'QR Ticket/Token Fare: ₹${fare}\n'
-  'Smart card/NCMC Fare at ${now.hour}:$formattedMinute '
-  '(till $_nextNonPeak): ₹${fare * 0.95}';
-
+        _printMainFare =
+            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour.toString().padLeft(2,'0')}:${DateTime.now().minute.toString().padLeft(2,'0')} (till ${_nextNonPeak}): ₹${fare * 0.95}';
         _printSideFare =
             'Smart cards/NCMC Fare: ₹${fare * 0.9} during non-peak hours (from ${_nextNonPeak})';
       }
@@ -549,163 +543,299 @@ _printMainFare =
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DropdownSearch<Station>(
-                  items: _stations,
-                  selectedItem: _selectedStation1,
-                  onChanged: (Station? station) {
-                    setState(() {
-                      _selectedStation1 = station!;
-                      _updateResult();
-                    });
-                  },
-                  dropdownDecoratorProps: DropDownDecoratorProps(
-                    dropdownSearchDecoration: InputDecoration(
-                      labelText: 'Starting Station',
-                      border: const OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        fontSize: 20.0,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // ===== Select Stations Card =====
+                  Card(
+                    color: themeProvider.isDarkMode
+                        ? const Color(0xff1e1e1e)
+                        : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
                         color: themeProvider.isDarkMode
-                            ? (_selectedStation1.lineName == 'Purple'
-                                ? Colors.purple[300]
-                                : (_selectedStation1.lineName == 'Yellow'
+                            ? ((_selectedStation1.lineName == 'Purple') &&
+                                    (_selectedStation2.lineName == "Purple"))
+                                ? Colors.purple[300]!
+                                : ((_selectedStation1.lineName == 'Yellow') &&
+                                        (_selectedStation2.lineName ==
+                                            "Yellow"))
                                     ? const Color(0xffffd700)
-                                    : const Color(0xff33cc33)))
-                            : (_selectedStation1.lineName == 'Purple'
-                                ? Colors.purple
-                                : (_selectedStation1.lineName == 'Yellow'
-                                    ? const Color(0xffb49900)
-                                    : const Color(0xff009c05))),
+                                    : ((_selectedStation1.lineName ==
+                                                'Green') &&
+                                            (_selectedStation2.lineName ==
+                                                "Green"))
+                                        ? const Color(0xff33cc33)
+                                        : const Color(0xff06aee1)
+                            : Colors.transparent,
+                        width: themeProvider.isDarkMode ? 1.5 : 0,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        children: [
+                          DropdownSearch<Station>(
+                            items: _stations,
+                            selectedItem: _selectedStation1,
+                            onChanged: (Station? station) {
+                              setState(() {
+                                _selectedStation1 = station!;
+                                _updateResult();
+                              });
+                            },
+                            dropdownDecoratorProps: DropDownDecoratorProps(
+                              dropdownSearchDecoration: InputDecoration(
+                                labelText: 'Starting Station',
+                                border: const OutlineInputBorder(),
+                                labelStyle: TextStyle(
+                                  fontSize: 20.0,
+                                  color: themeProvider.isDarkMode
+                                      ? (_selectedStation1.lineName == 'Purple'
+                                          ? Colors.purple[300]
+                                          : (_selectedStation1.lineName ==
+                                                  'Yellow'
+                                              ? const Color(0xffffd700)
+                                              : const Color(0xff33cc33)))
+                                      : (_selectedStation1.lineName == 'Purple'
+                                          ? Colors.purple
+                                          : (_selectedStation1.lineName ==
+                                                  'Yellow'
+                                              ? const Color(0xffb49900)
+                                              : const Color(0xff009c05))),
+                                ),
+                              ),
+                            ),
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: const TextFieldProps(
+                                decoration: InputDecoration(
+                                  hintText: "Search Starting Station",
+                                  border: OutlineInputBorder(),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              ),
+                              itemBuilder: (context, station, isSelected) {
+                                return ListTile(
+                                  title: _styledStationText(
+                                    station.lineName,
+                                    station.stationName,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.swap_vert, size: 30),
+                            onPressed: _switchStations,
+                            tooltip: 'Switch Stations',
+                          ),
+                          DropdownSearch<Station>(
+                            items: _stations,
+                            selectedItem: _selectedStation2,
+                            onChanged: (Station? station) {
+                              setState(() {
+                                _selectedStation2 = station!;
+                                _updateResult();
+                              });
+                            },
+                            dropdownDecoratorProps: DropDownDecoratorProps(
+                              dropdownSearchDecoration: InputDecoration(
+                                labelText: 'Destination Station',
+                                border: const OutlineInputBorder(),
+                                labelStyle: TextStyle(
+                                  fontSize: 20.0,
+                                  color: themeProvider.isDarkMode
+                                      ? (_selectedStation2.lineName == 'Purple'
+                                          ? Colors.purple[300]
+                                          : (_selectedStation2.lineName ==
+                                                  'Yellow'
+                                              ? const Color(0xffffd700)
+                                              : const Color(0xff33cc33)))
+                                      : (_selectedStation2.lineName == 'Purple'
+                                          ? Colors.purple
+                                          : (_selectedStation2.lineName ==
+                                                  'Yellow'
+                                              ? const Color(0xffb49900)
+                                              : const Color(0xff009c05))),
+                                ),
+                              ),
+                            ),
+                            popupProps: PopupProps.menu(
+                              showSearchBox: true,
+                              searchFieldProps: const TextFieldProps(
+                                decoration: InputDecoration(
+                                  hintText: "Search Destination Station",
+                                  border: OutlineInputBorder(),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              ),
+                              itemBuilder: (context, station, isSelected) {
+                                return ListTile(
+                                  title: _styledStationText(
+                                    station.lineName,
+                                    station.stationName,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  popupProps: PopupProps.menu(
-                    showSearchBox: true,
-                    searchFieldProps: const TextFieldProps(
-                      decoration: InputDecoration(
-                        hintText: "Search Starting Station",
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      ),
-                    ),
-                    itemBuilder: (context, station, isSelected) {
-                      return ListTile(
-                        title: _styledStationText(
-                            station.lineName, station.stationName),
-                      );
-                    },
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.swap_vert, size: 30),
-                  onPressed: _switchStations,
-                  tooltip: 'Switch Stations',
-                ),
-                DropdownSearch<Station>(
-                  items: _stations,
-                  selectedItem: _selectedStation2,
-                  onChanged: (Station? station) {
-                    setState(() {
-                      _selectedStation2 = station!;
-                      _updateResult();
-                    });
-                  },
-                  dropdownDecoratorProps: DropDownDecoratorProps(
-                    dropdownSearchDecoration: InputDecoration(
-                      labelText: 'Destination Station',
-                      border: const OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        fontSize: 20.0,
+
+                  const SizedBox(height: 16),
+// ===== Station Details Card (Always Open) =====
+                  Card(
+                    color: themeProvider.isDarkMode
+                        ? const Color(0xff1e1e1e)
+                        : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
                         color: themeProvider.isDarkMode
-                            ? (_selectedStation2.lineName == 'Purple'
-                                ? Colors.purple[300]
-                                : (_selectedStation2.lineName == 'Yellow'
+                            ? ((_selectedStation1.lineName == 'Purple') &&
+                                    (_selectedStation2.lineName == "Purple"))
+                                ? Colors.purple[300]!
+                                : ((_selectedStation1.lineName == 'Yellow') &&
+                                        (_selectedStation2.lineName ==
+                                            "Yellow"))
                                     ? const Color(0xffffd700)
-                                    : const Color(0xff33cc33)))
-                            : (_selectedStation2.lineName == 'Purple'
-                                ? Colors.purple
-                                : (_selectedStation2.lineName == 'Yellow'
-                                    ? const Color(0xffb49900)
-                                    : const Color(0xff009c05))),
+                                    : ((_selectedStation1.lineName ==
+                                                'Green') &&
+                                            (_selectedStation2.lineName ==
+                                                "Green"))
+                                        ? const Color(0xff33cc33)
+                                        : const Color(0xff06aee1)
+                            : Colors.transparent,
+                        width: themeProvider.isDarkMode ? 1.5 : 0,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Station Details",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _result,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _time,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (_directionA.isNotEmpty)
+                            Text(
+                              _directionA,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          if (_directionB.isNotEmpty)
+                            Text(
+                              _directionB,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          Text(
+                            _waitingTime,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xff898989),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  popupProps: PopupProps.menu(
-                    showSearchBox: true,
-                    searchFieldProps: const TextFieldProps(
-                      decoration: InputDecoration(
-                        hintText: "Search Destination Station",
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+
+                  const SizedBox(height: 16),
+
+// ===== Fare Info Card (Collapsible) =====
+                  Card(
+                    color: themeProvider.isDarkMode
+                        ? const Color(0xff1e1e1e)
+                        : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: themeProvider.isDarkMode
+                            ? ((_selectedStation1.lineName == 'Purple') &&
+                                    (_selectedStation2.lineName == "Purple"))
+                                ? Colors.purple[300]!
+                                : ((_selectedStation1.lineName == 'Yellow') &&
+                                        (_selectedStation2.lineName ==
+                                            "Yellow"))
+                                    ? const Color(0xffffd700)
+                                    : ((_selectedStation1.lineName ==
+                                                'Green') &&
+                                            (_selectedStation2.lineName ==
+                                                "Green"))
+                                        ? const Color(0xff33cc33)
+                                        : const Color(0xff06aee1)
+                            : Colors.transparent,
+                        width: themeProvider.isDarkMode ? 1.5 : 0,
                       ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    itemBuilder: (context, station, isSelected) {
-                      return ListTile(
-                        title: _styledStationText(
-                          station.lineName,
-                          station.stationName,
+                    elevation: 4,
+                    child: ExpansionTile(
+                      title: const Text(
+                        "Fare Details",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _result,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  _time,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (_directionA.isNotEmpty)
-                  Text(
-                    _directionA,
-                    style: const TextStyle(
-                      fontSize: 16,
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_printMainFare.isNotEmpty)
+                                Text(
+                                  _printMainFare,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              if (_printSideFare.isNotEmpty)
+                                const SizedBox(height: 8),
+                              if (_printSideFare.isNotEmpty)
+                                Text(
+                                  _printSideFare,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                if (_directionB.isNotEmpty)
-                  Text(
-                    _directionB,
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                Text(
-                  _waitingTime,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Color(0xff898989),
-                  ),
-                ),
-                if (_printMainFare.isNotEmpty) const SizedBox(height: 16),
-                Text(
-                  _printMainFare,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (_printSideFare.isNotEmpty) const SizedBox(height: 16),
-                Text(
-                  _printSideFare,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -713,3 +843,4 @@ _printMainFare =
     );
   }
 }
+
