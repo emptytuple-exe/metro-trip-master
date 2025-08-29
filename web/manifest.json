@@ -1,11 +1,20 @@
 {
+<<<<<<< HEAD
     "name": "Namma Metro Trip",
     "short_name": "Trip Master",
+=======
+    "name": "click_counter",
+    "short_name": "click_counter",
+>>>>>>> 30f3f93 (Colours and stuff added)
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
+<<<<<<< HEAD
     "description": "A website to calculate fares and station distances for Namma Metro",
+=======
+    "description": "A new Flutter project.",
+>>>>>>> 30f3f93 (Colours and stuff added)
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
