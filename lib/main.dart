@@ -208,7 +208,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Yellow', 7, 13, 6, 'Hongasandra (OFDC)'),
     Station('Yellow', 8, 14, 7, 'Kudlu Gate (MSRN)'),
     Station('Yellow', 9, 15, 8, 'Singasandra (CKBR)'),
-    Station('Yellow', 10, 16, 9, 'Hosa Roa11d (BSRD)'),
+    Station('Yellow', 10, 16, 9, 'Hosa Road (BSRD)'),
     Station('Yellow', 11, 17, 10, 'Beratena Agrahara (HOSR)'),
     Station('Yellow', 12, 18, 11, 'Electronic City (ETCT)'),
     Station('Yellow', 13, 19, 12, 'Infosys Foundation Konappana Agrahara (ECTN)'),
