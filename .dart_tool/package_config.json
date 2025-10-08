@@ -45,7 +45,7 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///home/khaboosguy/flutter/packages/flutter",
+      "rootUri": "file:///home/khaboosguy/snap/flutter/common/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -57,7 +57,7 @@
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///home/khaboosguy/flutter/packages/flutter_test",
+      "rootUri": "file:///home/khaboosguy/snap/flutter/common/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -123,7 +123,7 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///home/khaboosguy/flutter/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///home/khaboosguy/snap/flutter/common/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.8"
     },
@@ -183,8 +183,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.9.0",
-  "flutterRoot": "file:///home/khaboosguy/flutter",
-  "flutterVersion": "3.35.1",
+  "generatorVersion": "3.9.2",
+  "flutterRoot": "file:///home/khaboosguy/snap/flutter/common/flutter",
+  "flutterVersion": "3.35.5",
   "pubCache": "file:///home/khaboosguy/.pub-cache"
 }
