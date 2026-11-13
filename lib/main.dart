@@ -115,6 +115,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     'Purple': Colors.purple,
     'Green': const Color(0xff009c05),
     'Yellow': const Color(0xffb49900), // Yellow as requested (#f2f23f)
+    'Pink': const Color(0xffe91e63),
   };
 
   final List<Station> _stations = [
@@ -196,6 +197,14 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Green', 30, 13, 6, 'Vajarahalli (VJRH)'),
     Station('Green', 31, 14, 7, 'Thalaghattapura (TGTP)'),
     Station('Green', 32, 15, 8, 'Silk Institute (APTS)'),
+
+    // Pink Line (interchange with Yellow at Jayadeva Hospital)
+    Station('Pink', 1, 5, 4, 'Kalena Agrahara'),
+    Station('Pink', 2, 4, 3, 'Hulimavu'),
+    Station('Pink', 3, 3, 2, 'Bilekahalli–IIMB'),
+    Station('Pink', 4, 2, 1, 'N.S. Palya–J.P. Nagar 4th Phase'),
+    Station('Pink', 5, 1, 0, 'Jayadeva Hospital (Interchange with Yellow Line)'),
+    Station('Pink', 6, 0, 1, 'S.G. Palya (Suddagunte Palya)'),
 
     // Yellow Line (distances stored as fromRVR in the fromKGWA field)
     Station('Yellow', 1, 7, 0,
@@ -319,154 +328,6 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
         _directionB = '';
         _waitingTime = '';
         fare = 10;
-        majes = 0;
-        return;
-      }
-      if (_selectedStation1.lineName == _selectedStation2.lineName) {
-        distance =
-            _distanceBetweenOnSameLine(_selectedStation1, _selectedStation2);
-        travelTime = distance * 2;
-
-        if (_selectedStation1.stationNumber < _selectedStation2.stationNumber) {
-          if (_selectedStation1.lineName == 'Purple') {
-            _directionA =
-                '\nTowards Challaghatta (Platform 2) [${distance} station(s)]';
-          } else if (_selectedStation1.lineName == 'Green') {
-            _directionA =
-                '\nTowards Silk Institute (Platform 2) [${distance} station(s)]';
-          } else if (_selectedStation1.lineName == 'Yellow') {
-            _directionA = (_selectedStation1.stationName.contains('RVR'))
-                ? '\nTowards Bommasandra (Platform 3) [${distance} station(s)]'
-                : '\nTowards Bommasandra (Platform 2) [${distance} station(s)]';
-          } else {
-            _directionA =
-                '\nTowards ${_selectedStation2.stationName} [${distance} station(s)]';
-          }
-        } else {
-          if (_selectedStation1.lineName == 'Purple') {
-            _directionA =
-                '\nTowards Whitefield (Platform 1) [${distance} station(s)]';
-          } else if (_selectedStation1.lineName == 'Green') {
-            _directionA =
-                '\nTowards Madavara (Platform 1) [${distance} station(s)]';
-          } else if (_selectedStation1.lineName == 'Yellow') {
-            _directionA =
-                '\nTowards RV Road (Platform 1) [${distance} station(s)]';
-          } else {
-            _directionA =
-                '\nTowards ${_selectedStation2.stationName} [${distance} station(s)]';
-          }
-        }
-        _waitingTime =
-            '^+ waiting time at ${_shortName(_selectedStation1.stationName)}';
-      } else {
-        if ((_selectedStation1.lineName == "Yellow" &&
-                _selectedStation2.lineName == "Green") ||
-            (_selectedStation2.lineName == "Yellow" &&
-                _selectedStation1.lineName == "Green")) {
-          distance = _selectedStation1.fromRVR + _selectedStation2.fromRVR;
-          useRVR = true;
-        } else if (_selectedStation1.lineName == "Yellow" &&
-            _selectedStation2.lineName == "Purple") {
-          distance = _selectedStation1.fromRVR + 7 + _selectedStation2.fromKGWA;
-          useRVR = true;
-        } else if (_selectedStation1.lineName == "Purple" &&
-            _selectedStation2.lineName == "Yellow") {
-          distance = _selectedStation2.fromRVR + 7 + _selectedStation1.fromKGWA;
-          useRVR = true;
-        } else if (_selectedStation1.lineName == "Yellow" &&
-            _selectedStation2.lineName == "Purple") {
-          distance = _selectedStation1.fromRVR + 7 + _selectedStation2.fromKGWA;
-          useRVR = true;
-        } else if ((_selectedStation1.lineName == "Green" &&
-                _selectedStation2.lineName == "Purple") ||
-            _selectedStation1.lineName == "Purple" &&
-                _selectedStation2.lineName == "Green") {
-          distance = _selectedStation1.fromKGWA + _selectedStation2.fromKGWA;
-          useRVR = false;
-        }
-        if (useRVR) {
-          if (_selectedStation1.lineName == 'Purple') {
-            _directionA = (_selectedStation1.stationNumber < 23)
-                ? '\nTowards Challaghatta (Platform 2) till Majestic [${_selectedStation1.fromKGWA} station(s)] then towards Silk Institute (Platform 4) till RV Road [7 stations]'
-                : '\nTowards Whitefield (Platform 1) till Majestic [${_selectedStation1.fromKGWA} station(s)] then towards Silk Institute (Platform 4) till RV Road [7 stations]';
-            majes = 1;
-          } else if (_selectedStation1.lineName == 'Green') {
-            _directionA = (_selectedStation1.stationNumber < 24)
-                ? '\nTowards Silk Institute (Platform 2) till RV Road [${_selectedStation1.fromRVR} station(s)'
-                : '\nTowards Madavara (Platform 1) till RV Road [${_selectedStation1.fromRVR} station(s)]';
-          } else {
-            _directionA = (_selectedStation1.stationNumber == 1)
-                ? '\nTowards Bommasandra (Platform 2) [${_selectedStation1.fromRVR} station(s)]'
-                : (_selectedStation2.lineName == 'Green')
-                    ? '\nTowards RV Road (Platform 1) till RV Road [${_selectedStation1.fromRVR} station(s)]'
-                    : '\nTowards RV Road (Platform 1) till RV Road [${_selectedStation1.fromRVR} station(s)] then towards Madavara (Platform 1) till Majestic [7 stations]';
-          }
-
-          if (_selectedStation2.lineName == 'Purple') {
-            _directionB = (_selectedStation2.stationNumber > 23)
-                ? '\nTowards Challaghatta (Platform 2) from Majestic [${_selectedStation2.fromKGWA} station(s)]'
-                : '\nTowards Whitefield Kadugodi (Platform 1) from Majestic [${_selectedStation2.fromKGWA} station(s)]';
-            majes = 1;
-          } else if (_selectedStation2.lineName == 'Green') {
-            _directionB = (_selectedStation2.stationNumber > 24)
-                ? '\nTowards Silk Institute (Platform 2) from RV Road [${_selectedStation2.fromRVR} station(s)]'
-                : '\nTowards Madavara (Platform 1) from RV Road [${_selectedStation2.fromRVR} station(s)]';
-          } else {
-            if (_selectedStation2.stationNumber == 1) {
-              _directionB = '';
-            } else {
-              _directionB =
-                  '\nTowards Bommasandra (Platform 3) from RV Road [${_selectedStation2.fromRVR} station(s)]';
-            }
-          }
-
-          _waitingTime = (majes == 1)
-              ? '^ + waiting time at ${_shortName(_selectedStation1.stationName)}, Majestic and RV Road}'
-              : '^ + waiting time at ${_shortName(_selectedStation1.stationName)} and RV Road';
-        } else {
-          if (_selectedStation1.lineName == 'Purple') {
-            _directionA = (_selectedStation1.stationNumber < 23)
-                ? '\nTowards Challaghatta (Platform 2) till Majestic [${_selectedStation1.fromKGWA} station(s)]'
-                : '\nTowards Whitefield (Platform 1) till Majestic [${_selectedStation1.fromKGWA} station(s)]';
-            majes = 1;
-          } else if (_selectedStation1.lineName == 'Green') {
-            _directionA = (_selectedStation1.stationNumber < 17)
-                ? '\nTowards Silk Institute (Platform 2) till Majestic [${_selectedStation1.fromKGWA} station(s)]'
-                : '\nTowards Madavara (Platform 1) till Majestic [${_selectedStation1.fromKGWA} station(s)]';
-            majes = 1;
-          } else {
-            _directionA =
-                '\nTowards RV Road till RV Road [${_selectedStation1.fromRVR} station(s)] then towards Madavara (Platform 1) till Majesti [7 stations]';
-            majes = 1;
-          }
-
-          if (_selectedStation2.lineName == 'Purple') {
-            _directionB = (_selectedStation2.stationNumber > 23)
-                ? '\nTowards Challaghatta (Platform 2) from Majestic [${_selectedStation2.fromKGWA} station(s)]'
-                : '\nTowards Whitefield (Platform 1) from Majestic [${_selectedStation2.fromKGWA} station(s)]';
-            majes = 1;
-          } else if (_selectedStation2.lineName == 'Green') {
-            _directionB = (_selectedStation2.stationNumber > 17)
-                ? '\nTowards Silk Institute (Platform 4) from Majestic [${_selectedStation2.fromKGWA} station(s)]'
-                : '\nTowards Madavara (Platform 3) from Majestic [${_selectedStation2.fromKGWA} station(s)]';
-            majes = 1;
-          } else {
-            _directionB =
-                '\nTowards Silk Institute till RV Road then towards Bommasandra (Platform 4)';
-          }
-
-          _waitingTime = (majes == 1)
-              ? '^ + waiting time at ${_shortName(_selectedStation1.stationName)} and at Majestic'
-              : '^ + waiting time at ${_shortName(_selectedStation1.stationName)} and at RV Road';
-        }
-        travelTime = distance * 2;
-      }
-
-      _time = travelTime > 60
-          ? 'Time: ${(travelTime ~/ 60)}h ${(travelTime % 60)}m'
-          : 'Time: $travelTime minutes^';
-
       _result = (distance > 1)
           ? 'Distance: $distance stations'
           : 'Distance: $distance station';
@@ -566,11 +427,16 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                             "Yellow"))
                                     ? const Color(0xffffd700)
                                     : ((_selectedStation1.lineName ==
-                                                'Green') &&
+                                                'Pink') &&
                                             (_selectedStation2.lineName ==
-                                                "Green"))
-                                        ? const Color(0xff33cc33)
-                                        : const Color(0xff06aee1)
+                                                "Pink"))
+                                        ? Colors.pink[300]!
+                                        : ((_selectedStation1.lineName ==
+                                                    'Green') &&
+                                                (_selectedStation2.lineName ==
+                                                    "Green"))
+                                            ? const Color(0xff33cc33)
+                                            : const Color(0xff06aee1)
                             : Colors.transparent,
                         width: themeProvider.isDarkMode ? 1.5 : 0,
                       ),
@@ -602,13 +468,19 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                           : (_selectedStation1.lineName ==
                                                   'Yellow'
                                               ? const Color(0xffffd700)
-                                              : const Color(0xff33cc33)))
+                                              : (_selectedStation1.lineName ==
+                                                      'Pink'
+                                                  ? Colors.pink[300]
+                                                  : const Color(0xff33cc33))))
                                       : (_selectedStation1.lineName == 'Purple'
                                           ? Colors.purple
                                           : (_selectedStation1.lineName ==
                                                   'Yellow'
                                               ? const Color(0xffb49900)
-                                              : const Color(0xff009c05))),
+                                              : (_selectedStation1.lineName ==
+                                                      'Pink'
+                                                  ? Colors.pink
+                                                  : const Color(0xff009c05)))),
                                 ),
                               ),
                             ),
@@ -658,13 +530,19 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                           : (_selectedStation2.lineName ==
                                                   'Yellow'
                                               ? const Color(0xffffd700)
-                                              : const Color(0xff33cc33)))
+                                              : (_selectedStation2.lineName ==
+                                                      'Pink'
+                                                  ? Colors.pink[300]
+                                                  : const Color(0xff33cc33))))
                                       : (_selectedStation2.lineName == 'Purple'
                                           ? Colors.purple
                                           : (_selectedStation2.lineName ==
                                                   'Yellow'
                                               ? const Color(0xffb49900)
-                                              : const Color(0xff009c05))),
+                                              : (_selectedStation2.lineName ==
+                                                      'Pink'
+                                                  ? Colors.pink
+                                                  : const Color(0xff009c05)))),
                                 ),
                               ),
                             ),
@@ -710,11 +588,16 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                             "Yellow"))
                                     ? const Color(0xffffd700)
                                     : ((_selectedStation1.lineName ==
-                                                'Green') &&
+                                                'Pink') &&
                                             (_selectedStation2.lineName ==
-                                                "Green"))
-                                        ? const Color(0xff33cc33)
-                                        : const Color(0xff06aee1)
+                                                "Pink"))
+                                        ? Colors.pink[300]!
+                                        : ((_selectedStation1.lineName ==
+                                                    'Green') &&
+                                                (_selectedStation2.lineName ==
+                                                    "Green"))
+                                            ? const Color(0xff33cc33)
+                                            : const Color(0xff06aee1)
                             : Colors.transparent,
                         width: themeProvider.isDarkMode ? 1.5 : 0,
                       ),
@@ -786,11 +669,16 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                             "Yellow"))
                                     ? const Color(0xffffd700)
                                     : ((_selectedStation1.lineName ==
-                                                'Green') &&
+                                                'Pink') &&
                                             (_selectedStation2.lineName ==
-                                                "Green"))
-                                        ? const Color(0xff33cc33)
-                                        : const Color(0xff06aee1)
+                                                "Pink"))
+                                        ? Colors.pink[300]!
+                                        : ((_selectedStation1.lineName ==
+                                                    'Green') &&
+                                                (_selectedStation2.lineName ==
+                                                    "Green"))
+                                            ? const Color(0xff33cc33)
+                                            : const Color(0xff06aee1)
                             : Colors.transparent,
                         width: themeProvider.isDarkMode ? 1.5 : 0,
                       ),
