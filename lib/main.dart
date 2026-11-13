@@ -203,7 +203,8 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Pink', 2, 4, 3, 'Hulimavu'),
     Station('Pink', 3, 3, 2, 'Bilekahalli–IIMB'),
     Station('Pink', 4, 2, 1, 'N.S. Palya–J.P. Nagar 4th Phase'),
-    Station('Pink', 5, 1, 0, 'Jayadeva Hospital (Interchange with Yellow Line)'),
+    Station(
+        'Pink', 5, 1, 0, 'Jayadeva Hospital'),
     Station('Pink', 6, 0, 1, 'S.G. Palya (Suddagunte Palya)'),
 
     // Yellow Line (distances stored as fromRVR in the fromKGWA field)
@@ -220,20 +221,19 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     Station('Yellow', 10, 16, 9, 'Hosa Road (BSRD)'),
     Station('Yellow', 11, 17, 10, 'Beratena Agrahara (HOSR)'),
     Station('Yellow', 12, 18, 11, 'Electronic City (ETCT)'),
-    Station('Yellow', 13, 19, 12, 'Infosys Foundation Konappana Agrahara (ECTN)'),
+    Station(
+        'Yellow', 13, 19, 12, 'Infosys Foundation Konappana Agrahara (ECTN)'),
     Station('Yellow', 14, 20, 13, 'Huskur Road (HSKR)'),
     Station('Yellow', 15, 21, 14, 'Biocon Hebbagodi (HBGI)'),
     Station('Yellow', 16, 22, 15, 'Delta Electronics Bommasandra (BMSD)'),
   ];
 
   Station _selectedStation1 = Station('Purple', 27, 4, 11, 'Vijayanagar (VJN)');
-  Station _selectedStation2 =
-      Station('Green', 27, 10, 3, 'Yelachenahalli (PUTH)');
+  Station _selectedStation2 = Station('Pink', 3, 3, 2, 'Bilekahalli–IIMB');
   String _result = '';
   String _time = '';
   String _waitingTime = '';
-  String _directionA = '';
-  String _directionB = '';
+  List<({String lineName, String text})> _directions = [];
   String _printMainFare = '';
   String _printSideFare = '';
   String _nextPeak = '';
@@ -278,6 +278,111 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     return (a.stationNumber - b.stationNumber).abs();
   }
 
+  List<Station> get _stationOptions {
+    final seenInterchanges = <String>{};
+    return _stations.where((station) {
+      final interchange = _interchangeKey(station);
+      return interchange == null || seenInterchanges.add(interchange);
+    }).toList();
+  }
+
+  String? _interchangeKey(Station station) {
+    if (station.stationName.contains('Majestic')) {
+      return 'Majestic';
+    }
+    if ((station.lineName == 'Green' || station.lineName == 'Yellow') &&
+        station.stationName.contains('(RVR)')) {
+      return 'RV Road';
+    }
+    if ((station.lineName == 'Pink' || station.lineName == 'Yellow') &&
+        station.stationName.contains('Jayadeva Hospital')) {
+      return 'Jayadeva Hospital';
+    }
+    return null;
+  }
+
+  List<Station>? _findRoute(Station from, Station to) {
+    final stations = [
+      ..._stations,
+      if (!_stations.any((station) =>
+          station.lineName == from.lineName &&
+          station.stationNumber == from.stationNumber))
+        from,
+      if (!_stations.any((station) =>
+          station.lineName == to.lineName &&
+          station.stationNumber == to.stationNumber))
+        to,
+    ];
+    List<Station> matchingStations(Station selected) {
+      final interchange = _interchangeKey(selected);
+      return stations.where((station) {
+        if (interchange != null) {
+          return _interchangeKey(station) == interchange;
+        }
+        return station.lineName == selected.lineName &&
+            station.stationNumber == selected.stationNumber;
+      }).toList();
+    }
+
+    final starts = matchingStations(from);
+    final destinations = matchingStations(to).toSet();
+    final queue = <Station>[...starts];
+    final previous = <Station, Station?>{
+      for (final station in starts) station: null,
+    };
+    Station? destination;
+
+    for (var index = 0; index < queue.length; index++) {
+      final current = queue[index];
+      if (destinations.contains(current)) {
+        destination = current;
+        break;
+      }
+
+      for (final next in stations) {
+        if (previous.containsKey(next)) {
+          continue;
+        }
+        final sameLineNeighbor = next.lineName == current.lineName &&
+            _distanceBetweenOnSameLine(current, next) == 1;
+        final currentInterchange = _interchangeKey(current);
+        final nextInterchange = _interchangeKey(next);
+        final interchangeNeighbor = current.lineName != next.lineName &&
+            currentInterchange != null &&
+            currentInterchange == nextInterchange;
+        if (sameLineNeighbor || interchangeNeighbor) {
+          previous[next] = current;
+          queue.add(next);
+        }
+      }
+    }
+
+    if (destination == null) {
+      return null;
+    }
+    final route = <Station>[];
+    Station? current = destination;
+    while (current != null) {
+      route.add(current);
+      current = previous[current];
+    }
+    return route.reversed.toList();
+  }
+
+  String _lineTerminal(String lineName, bool towardsHigherNumber) {
+    return switch ((lineName, towardsHigherNumber)) {
+      ('Purple', true) => 'Challaghatta',
+      ('Purple', false) => 'Whitefield (Kadugodi)',
+      ('Green', true) => 'Silk Institute',
+      ('Green', false) => 'Madavara',
+      ('Yellow', true) => 'Bommasandra',
+      ('Yellow', false) => 'Rashtreeya Vidyalaya Road',
+      ('Pink', true) => 'S.G. Palya',
+      ('Pink', false) => 'Kalena Agrahara',
+      _ => lineName,
+    };
+  }
+
   int isNonPeakNow() {
     final now = DateTime.now();
     final minutes = now.hour * 60 + now.minute;
@@ -309,30 +414,92 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
 
   void _updateResult() {
     setState(() {
-      int distance = 0;
-      int travelTime = 0;
-      bool useRVR = false;
-      int fare;
-      int majes = 0;
-      int nonPeak = isNonPeakNow();
-      _directionA = '';
-      _directionB = '';
+      var distance = 0;
+      final nonPeak = isNonPeakNow();
+      _directions = [];
       _waitingTime = '';
       _printMainFare = '';
       _printSideFare = '';
 
-      if (_selectedStation1.stationName == _selectedStation2.stationName) {
+      final route = _findRoute(_selectedStation1, _selectedStation2);
+      if (route == null) {
+        throw StateError(
+          'No route found between ${_selectedStation1.stationName} and '
+          '${_selectedStation2.stationName}.',
+        );
+      }
+
+      final routeLegs = <({Station from, Station to})>[];
+      final transfers = <String>[];
+      var index = 0;
+      while (index < route.length - 1) {
+        final current = route[index];
+        final next = route[index + 1];
+        if (current.lineName != next.lineName) {
+          transfers.add(_interchangeKey(current)!);
+          index++;
+          continue;
+        }
+
+        var endIndex = index + 1;
+        while (endIndex < route.length - 1 &&
+            route[endIndex].lineName == route[endIndex + 1].lineName) {
+          endIndex++;
+        }
+        final end = route[endIndex];
+        distance += _distanceBetweenOnSameLine(current, end);
+        routeLegs.add((from: current, to: end));
+        index = endIndex;
+      }
+
+      final directions = <({String lineName, String text})>[];
+      for (var legIndex = 0; legIndex < routeLegs.length; legIndex++) {
+        final leg = routeLegs[legIndex];
+        final towardsHigherNumber =
+            leg.to.stationNumber > leg.from.stationNumber;
+        final platform = switch (leg.from.lineName) {
+          'Purple' || 'Green' => towardsHigherNumber ? 2 : 1,
+          'Yellow' =>
+            towardsHigherNumber ? (leg.from.stationNumber == 1 ? 3 : 2) : 1,
+          'Pink' => towardsHigherNumber ? 1 : 2,
+          _ => null,
+        };
+        final fromInterchange = legIndex > 0 ? transfers[legIndex - 1] : null;
+        final toInterchange =
+            legIndex < transfers.length ? transfers[legIndex] : null;
+        final platformLabel = platform == null ? '' : ' (Platform $platform)';
+        final fromLabel =
+            fromInterchange == null ? '' : ' from $fromInterchange';
+        final tillLabel = toInterchange == null ? '' : ' till $toInterchange';
+        directions.add((
+          lineName: leg.from.lineName,
+          text: 'Towards ${_lineTerminal(leg.from.lineName, towardsHigherNumber)}'
+              '$platformLabel$fromLabel$tillLabel '
+              '\n[${_distanceBetweenOnSameLine(leg.from, leg.to)} station(s)]',
+        ));
+      }
+
+      if (distance == 0) {
         _result = 'Same stations';
         _time = '';
-        _directionA = '';
-        _directionB = '';
-        _waitingTime = '';
-        fare = 10;
-      _result = (distance > 1)
-          ? 'Distance: $distance stations'
-          : 'Distance: $distance station';
+      } else {
+        final travelTime = distance * 2;
+        _result = (distance > 1)
+            ? 'Distance: $distance stations'
+            : 'Distance: $distance station';
+        _time = travelTime > 60
+            ? 'Time: ${travelTime ~/ 60}h ${travelTime % 60}m'
+            : 'Time: $travelTime minutes^';
+      }
+      _directions = directions;
+      final transferLocations = transfers.length < 2
+          ? transfers.join()
+          : '${transfers.take(transfers.length - 1).join(', ')} '
+              'and ${transfers.last}';
+      _waitingTime =
+          transfers.isEmpty ? '' : '^+ waiting time at $transferLocations';
 
-      fare = switch (distance) {
+      final fare = switch (distance) {
         0 => 10,
         >= 1 && <= 2 => 10,
         >= 3 && <= 4 => 20,
@@ -345,16 +512,21 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
         >= 26 && <= 30 => 90,
         _ => 90,
       };
+      final now = DateTime.now();
+      final currentTime = '${now.hour.toString().padLeft(2, '0')}:'
+          '${now.minute.toString().padLeft(2, '0')}';
       if (nonPeak == 1) {
-        _printMainFare =
-            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour.toString().padLeft(2,'0')}:${DateTime.now().minute.toString().padLeft(2,'0')} (till ${_nextPeak}): ₹${fare * 0.9}';
-        _printSideFare =
-            'Smart cards/NCMC Fare: ₹${fare * 0.95} during peak hours (from ${_nextPeak})';
+        _printMainFare = 'QR Ticket/Token Fare: ₹$fare\n'
+            'Smart card/NCMC Fare at $currentTime (till $_nextPeak): '
+            '₹${fare * 0.9}';
+        _printSideFare = 'Smart cards/NCMC Fare: ₹${fare * 0.95} '
+            'during peak hours (from $_nextPeak)';
       } else {
-        _printMainFare =
-            'QR Ticket/Token Fare: ₹${fare}\nSmart card/NCMC Fare at ${DateTime.now().hour.toString().padLeft(2,'0')}:${DateTime.now().minute.toString().padLeft(2,'0')} (till ${_nextNonPeak}): ₹${fare * 0.95}';
-        _printSideFare =
-            'Smart cards/NCMC Fare: ₹${fare * 0.9} during non-peak hours (from ${_nextNonPeak})';
+        _printMainFare = 'QR Ticket/Token Fare: ₹$fare\n'
+            'Smart card/NCMC Fare at $currentTime (till $_nextNonPeak): '
+            '₹${fare * 0.95}';
+        _printSideFare = 'Smart cards/NCMC Fare: ₹${fare * 0.9} '
+            'during non-peak hours (from $_nextNonPeak)';
       }
     });
   }
@@ -426,8 +598,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                         (_selectedStation2.lineName ==
                                             "Yellow"))
                                     ? const Color(0xffffd700)
-                                    : ((_selectedStation1.lineName ==
-                                                'Pink') &&
+                                    : ((_selectedStation1.lineName == 'Pink') &&
                                             (_selectedStation2.lineName ==
                                                 "Pink"))
                                         ? Colors.pink[300]!
@@ -448,7 +619,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                       child: Column(
                         children: [
                           DropdownSearch<Station>(
-                            items: _stations,
+                            items: _stationOptions,
                             selectedItem: _selectedStation1,
                             onChanged: (Station? station) {
                               setState(() {
@@ -510,7 +681,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                             tooltip: 'Switch Stations',
                           ),
                           DropdownSearch<Station>(
-                            items: _stations,
+                            items: _stationOptions,
                             selectedItem: _selectedStation2,
                             onChanged: (Station? station) {
                               setState(() {
@@ -587,8 +758,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                         (_selectedStation2.lineName ==
                                             "Yellow"))
                                     ? const Color(0xffffd700)
-                                    : ((_selectedStation1.lineName ==
-                                                'Pink') &&
+                                    : ((_selectedStation1.lineName == 'Pink') &&
                                             (_selectedStation2.lineName ==
                                                 "Pink"))
                                         ? Colors.pink[300]!
@@ -629,23 +799,38 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (_directionA.isNotEmpty)
-                            Text(
-                              _directionA,
+                          if (_directions.isNotEmpty) const SizedBox(height: 8),
+                          if (_directions.isNotEmpty)
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  for (var index = 0;
+                                      index < _directions.length;
+                                      index++)
+                                    TextSpan(
+                                      text:
+                                          '${index == 0 ? '' : '\n'}${_directions[index].text}',
+                                      style: TextStyle(
+                                        color: lineColors[
+                                                _directions[index].lineName] ??
+                                            Colors.black,
+                                      ),
+                                    ),
+                                ],
+                              ),
                               style: const TextStyle(fontSize: 16),
                             ),
-                          if (_directionB.isNotEmpty)
+                          if (_waitingTime.isNotEmpty) ...[
+                            if (_directions.isNotEmpty)
+                              const SizedBox(height: 8),
                             Text(
-                              _directionB,
-                              style: const TextStyle(fontSize: 16),
+                              _waitingTime,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xff898989),
+                              ),
                             ),
-                          Text(
-                            _waitingTime,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xff898989),
-                            ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -668,8 +853,7 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
                                         (_selectedStation2.lineName ==
                                             "Yellow"))
                                     ? const Color(0xffffd700)
-                                    : ((_selectedStation1.lineName ==
-                                                'Pink') &&
+                                    : ((_selectedStation1.lineName == 'Pink') &&
                                             (_selectedStation2.lineName ==
                                                 "Pink"))
                                         ? Colors.pink[300]!
@@ -731,4 +915,3 @@ class _StationDistanceCalculatorState extends State<StationDistanceCalculator> {
     );
   }
 }
-
